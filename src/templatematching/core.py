@@ -11,6 +11,7 @@ from . import streaming_matching, gst, rtsp_server, result_redis
 SERVICE_NAME = os.environ.get("SERVICE", "template-matching-by-opencv-for-rtsp")
 DEVICE_NAME = os.environ.get("DEVICE_NAME", "")
 CAMERA_SERVICE = os.environ.get("CAMERA_SERVICE", "stream-usb-video-by-rtsp")
+KAFKA_MODE = os.environ.get("KAFKA_MODE", False)
 initialize_logger(SERVICE_NAME)
 
 NUM_OF_MAX_DATA = 10
@@ -142,7 +143,19 @@ def main(opt: Options):
                 else:
                     result = None
 
-                conn.output_kanban(metadata=result, device_name=DEVICE_NAME)
+                if KAFKA_MODE:
+                    conn.output_kanban(
+                            process_number = num,
+                            connection_key = "kafka",
+                            result = True,
+                            metadata = {
+                                "topic": "template-matching",
+                                "key": SERVICE_NAME + ":" + num,
+                                "content": result
+                            }
+                    )
+                else:
+                    conn.output_kanban(metadata=result, device_name=DEVICE_NAME)
 
     except Exception as e:
         lprint(e)
