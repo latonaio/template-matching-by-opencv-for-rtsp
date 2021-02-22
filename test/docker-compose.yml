@@ -1,0 +1,44 @@
+version: '3'
+
+services:
+  redis:
+    image: "redis:latest"
+    ports:
+      - "6379:6379"
+    volumes:
+      - "redis_data:/redis/data"
+    tty: true
+    networks:
+      - redis_test
+
+# RTSP配信をするサーバー , ファイルをストリーミングに変換する
+  streaming-server:
+    image: ubuntu
+    command: bash -c "apt-get update && apt install libgstreamer1.0-0 gstreamer1.0-tools && apt install gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly gstreamer1.0-libav gstreamer1.0-doc gstreamer1.0-tools gstreamer1.0-x gstreamer1.0-alsa gstreamer1.0-gl gstreamer1.0-gtk3 gstreamer1.0-qt5 gstreamer1.0-pulseaudios "
+    volumes:
+      - "streaming-data:/streaming-data"
+    networks:
+      - streaming
+    tty: true
+
+  app:
+    image: ubuntu
+    volumes:
+      - "./src:/home/src"
+    working_dir: "/home/src"
+    depends_on: 
+      - redis
+    command: bash -c " apt-get update && apt-get install -y python3 python3-pip && pip3 install -r requirements_app.txt && python3 input_redis.py"
+    networks:
+      - streaming
+      - redis_test
+
+volumes:
+  redis_data:
+    driver: local
+  streaming-data:
+    driver: local
+
+networks:
+  redis_test:
+  streaming:
