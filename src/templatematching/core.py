@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 import os
 from multiprocessing import Queue
-
+import threading
 from aion.logger import lprint, initialize_logger
 from aion.microservice import main_decorator, Options
 from gi.repository import GLib  # isort:skip
 
-from . import streaming_matching, gst, rtsp_server, result_redis
+from . import streaming_matching, gst, rtsp_server, result_redis, output_for_kafka
 
 SERVICE_NAME = os.environ.get("SERVICE", "template-matching-by-opencv-for-rtsp")
 DEVICE_NAME = os.environ.get("DEVICE_NAME", "")
@@ -92,6 +92,7 @@ def main(opt: Options):
     matching = None
     rs = None
     rr = None
+    ofk = None
 
     source_url = f"rtsp://{STREAM_URL}:{8554 + int(PROCESS_NUM)}/usb"
 
@@ -102,6 +103,9 @@ def main(opt: Options):
         image_queue = Queue()
         fitness_queue = Queue()
         wait_queue = Queue(maxsize=1)
+        kafka_queue = None
+        if KAFKA_MODE:
+            kafka_queue = Queue()
 
         # start to get image from rtsp
         # 元データ取得用のstream
@@ -120,7 +124,14 @@ def main(opt: Options):
             image_queue, server_port, DEFAULT_WIDTH, DEFAULT_HEIGHT)
 
         # write to redis
-        rr = result_redis.RedisProcess(fitness_queue, PROCESS_NUM)
+        rr = result_redis.RedisProcess(fitness_queue, PROCESS_NUM, kafka_queue)
+
+        lock = threading.Lock()
+        # write fitness info to kanban for kafka
+        if KAFKA_MODE:
+            ofk = output_for_kafka.OutputKafkaProcess(
+                conn, kafka_queue, SERVICE_NAME, PROCESS_NUM, lock
+            )
 
         lprint("start read kanban")
         # start get_kanban_itr
@@ -143,20 +154,10 @@ def main(opt: Options):
                 else:
                     result = None
 
-                if KAFKA_MODE:
-                    conn.output_kanban(
-                            process_number = num,
-                            connection_key = "kafka",
-                            result = True,
-                            metadata = {
-                                "topic": "template-matching",
-                                "key": SERVICE_NAME + ":" + num,
-                                "content": result
-                            }
-                    )
-                else:
+                if not KAFKA_MODE:
+                    lock.acquire()
                     conn.output_kanban(metadata=result, device_name=DEVICE_NAME)
-
+                    lock.release()
     except Exception as e:
         lprint(e)
 
@@ -169,3 +170,5 @@ def main(opt: Options):
             rs.stop()
         if rr is not None:
             rr.stop()
+        if ofk is not None:
+            ofk.stop()

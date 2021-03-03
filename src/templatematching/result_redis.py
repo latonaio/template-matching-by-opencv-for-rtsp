@@ -17,13 +17,14 @@ class RedisProcess:
     process = None
     rtsp = None
 
-    def __init__(self, queue, process_num):
+    def __init__(self, queue, process_num, kafka_queue=None):
         self.rtsp = Redis(queue, process_num)
         self.queue = queue
+        self.kafka_queue = kafka_queue
 
         self.process = Process(
             target=self.rtsp.loop_of_put_result,
-            args=())
+            args=(kafka_queue,))
         self.process.start()
 
     def stop(self):
@@ -40,12 +41,13 @@ class Redis:
     def __init__(self, queue, process_num):
         self.queue = queue
         self.process_num = process_num
+        self.kafka_queue = None
 
-    def loop_of_put_result(self):
+    def loop_of_put_result(self, kafka_queue=None):
+        self.kafka_queue = kafka_queue
         with redis.StrictRedis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB) as connection:
             while True:
                 result = self.queue.get()
-
                 if result is None:
                     return
 
@@ -55,6 +57,8 @@ class Redis:
 
                     connection.set(name=name, value=str(result))
                     connection.expire(name, EXPIRE)
+                    if self.kafka_queue is not None:
+                        self.kafka_queue.put(result)
                 else:
                     for key, val in result.items():
                         if key == "fitness":
@@ -65,10 +69,11 @@ class Redis:
 
                     connection.hmset(redis_key, result)
                     connection.expire(redis_key, EXPIRE)
-
+                    if self.kafka_queue is not None:
+                        self.kafka_queue.put(result)
                     redis_key_list_key = 'key-list:%s' % self.process_num
 
                     # set key_list
                     connection.zadd(redis_key_list_key, {redis_key: result.get('unix_time')})
 
-                    lprint('set results to %s' % redis_key)
+                    # lprint('set results to %s' % redis_key)

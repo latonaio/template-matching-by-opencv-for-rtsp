@@ -2,9 +2,7 @@
 from datetime import datetime
 from enum import Enum, auto
 from multiprocessing import Process
-
 from aion.logger import lprint
-
 from .template_matching.matcher import Matcher
 
 
@@ -69,7 +67,6 @@ class MatchingFromStreaming:
         self.fitness_out_q = None
         self.image_out_q = None
         self.wait_q = None
-        self.wait_q = None
         self.init_image_path = init_image_path
         self.init_template_data = init_template_data
         self.init_template_timestamp = init_template_timestamp
@@ -110,6 +107,7 @@ class MatchingFromStreaming:
             # if get array from rtsp
             if rtype == RequestType.Array:
                 fitness, image, template_timestamp = self.get_multiple_fitness(rcv.array)
+
                 if fitness is not None:
                     output = {
                         "fitness": fitness,
