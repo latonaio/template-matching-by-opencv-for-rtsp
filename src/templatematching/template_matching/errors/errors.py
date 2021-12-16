@@ -1,0 +1,4 @@
+
+
+class TemplateMatchingException(Exception):
+    pass

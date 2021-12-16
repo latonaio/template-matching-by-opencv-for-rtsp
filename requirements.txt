@@ -1,0 +1,5 @@
+opencv-python==4.5.4.60
+PyGObject==3.42.0
+redis==6.2.6
+git+https://github.com/latonaio/rabbitmq-python-client.git@main#egg=rabbitmq_client
+git+https://github.com/latonaio/python-logging-library.git@main#egg=custom_logger

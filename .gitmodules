@@ -1,0 +1,6 @@
+[submodule "docker-entrypoint-scripts"]
+	path = docker-entrypoint-scripts
+	url = git@bitbucket.org:latonaio/docker-entrypoint-scripts.git
+[submodule "web-socket-server"]
+	path = web-socket-server
+	url = git@bitbucket.org:latonaio/web-socket-server.git

@@ -1,0 +1,16 @@
+ template-matching-by-opencv-for-rtsp:
+    scale: 1
+    startup: yes
+    always: yes
+    network: NodePort
+    env:
+      PROCESS_NUM: 1
+      CAMERA_SERVICE: stream-usb-video-by-rtsp-multiple-camera
+      MATCHING_RESULT_MODE: LATEST
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/famanager
+      QUEUE_ORIGIN: template-matching-by-opencv-for-rtsp-queue
+    ports:
+      - name: fitness
+        protocol: TCP
+        port: 5000
+        nodePort: 32001

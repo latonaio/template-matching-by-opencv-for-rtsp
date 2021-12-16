@@ -1,0 +1,57 @@
+[
+  {
+    "matching_rate": 0.9595586061477661,
+    "matching_points": {
+      "x": 470,
+      "y": 223,
+      "w": 227,
+      "h": 193
+    },
+    "work_id": 1.0,
+    "pass_threshold": 0.8
+  },
+  {
+    "matching_rate": 0.8014793992042542,
+    "matching_points": {
+      "x": 55,
+      "y": 114,
+      "w": 199,
+      "h": 176
+    },
+    "pass_threshold": 0.8,
+    "work_id": 1.0
+  },
+  {
+    "matching_rate": 0.9659255146980286,
+    "matching_points": {
+      "x": 330,
+      "y": 114,
+      "w": 199,
+      "h": 172
+    },
+    "pass_threshold": 0.8,
+    "work_id": 1.0
+  },
+  {
+    "matching_rate": 0.9356037378311157,
+    "matching_points": {
+      "x": 199,
+      "y": 244,
+      "w": 203,
+      "h": 180
+    },
+    "pass_threshold": 0.8,
+    "work_id": 1.0
+  },
+  {
+    "matching_rate": 0.8321952819824219,
+    "matching_points": {
+      "x": 550,
+      "y": 101,
+      "w": 212,
+      "h": 167
+    },
+    "work_id": 1.0,
+    "pass_threshold": 0.8
+  }
+]
