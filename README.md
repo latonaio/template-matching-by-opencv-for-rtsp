@@ -32,7 +32,7 @@ sudo cp ~/$(hostname)/Runtime/template-matching-by-opencv-for-rtsp/file/data/dum
 ### デプロイ on AION
 AION上でデプロイする場合、services.yamlに次の設定を追加してください。
 ```
- template-matching-by-opencv-for-rtsp-1:
+ template-matching-by-opencv-for-rtsp:
     scale: 1
     startup: yes
     always: yes
@@ -41,8 +41,8 @@ AION上でデプロイする場合、services.yamlに次の設定を追加して
       PROCESS_NUM: 1
       CAMERA_SERVICE: stream-usb-video-by-rtsp-multiple-camera
       MATCHING_RESULT_MODE: LATEST
-      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/pokayoke
-      QUEUE_ORIGIN: template-matching-by-opencv-for-rtsp-1-queue
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/famanager
+      QUEUE_ORIGIN: template-matching-by-opencv-for-rtsp-queue
     ports:
       - name: fitness
         protocol: TCP

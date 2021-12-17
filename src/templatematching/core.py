@@ -25,10 +25,10 @@ DEFAULT_WIDTH = 864
 DEFAULT_HEIGHT = 480
 
 INIT_IMAGE_PATH = os.path.join("/var/lib/aion/Data/template-matching-by-opencv-for-rtsp", "dummy.jpg")
-PROCESS_NUM = os.environ.get('PROCESS_NUM', 0)
-SERVICE_NAME = SERVICE_NAME + '-' + str(PROCESS_NUM) if PROCESS_NUM != 0 else SERVICE_NAME
+PROCESS_NUM = int(os.environ.get('PROCESS_NUM', 0))
+SERVICE_NAME = SERVICE_NAME + '-' + str(PROCESS_NUM) if PROCESS_NUM > 1 else SERVICE_NAME
 
-STREAM_URL = CAMERA_SERVICE + '-' + str(PROCESS_NUM) + '-001-srv'
+STREAM_URL = (CAMERA_SERVICE + '-' + str(PROCESS_NUM) if PROCESS_NUM > 1 else CAMERA_SERVICE) + '-001-srv'
 IS_DEBUG = int(os.environ.get("IS_DEBUG",0))
 
 RABBITMQ_URL = os.environ.get("RABBITMQ_URL")
